@@ -1,4 +1,6 @@
 # miniBrowser
-## fkmsg
-*dmksna* <br>
-**jdskahf**
+## инструкция
+1. создать проект с названием "bower".
+2. скачать пакет Microsoft.Web.WebView2
+3. вставить код.
+4. запустить
