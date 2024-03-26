@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
+using System.Linq;
 
 namespace bower
 {
     public partial class MainWindow : Window
     {
-        private string saveFilePath = "last_visited_page.txt";
+        private List<string> history = new List<string>();
+        private string historyFilePath = "browser_history.txt";
+        private int historyIndex = -1; // Индекс текущей страницы в истории
+        private bool isInHistoryMode = true; // Флаг режима просмотра истории
 
         public MainWindow()
         {
@@ -17,54 +22,102 @@ namespace bower
 
         private void LoadLastVisitedPage()
         {
-            if (File.Exists(saveFilePath))
+            if (File.Exists(historyFilePath))
             {
-                string lastVisitedPage = File.ReadAllText(saveFilePath);
-                webView.Source = new Uri(lastVisitedPage);
+                string[] savedHistory = File.ReadAllLines(historyFilePath);
+                history.AddRange(savedHistory);
+                if (history.Count > 0)
+                {
+                    historyIndex = history.Count - 1;
+                    webView.Source = new Uri(history[historyIndex]);
+                }
+                else
+                {
+                    webView.Source = new Uri("https://kaspi.kz/");
+                }
             }
             else
             {
-                webView.Source = new Uri("https://www.google.com/");
+                webView.Source = new Uri("https://kaspi.kz/");
             }
         }
 
         private void MainWindow_Closing(object sender, EventArgs e)
         {
-            SaveLastVisitedPage();
+            if (historyIndex < history.Count - 1)
+            {
+                history.RemoveRange(historyIndex + 1, history.Count - historyIndex - 1);
+            }
+            SaveHistoryToFile();
         }
 
-        private void SaveLastVisitedPage()
+        private void SaveHistoryToFile()
         {
-            string lastVisitedPage = webView.Source?.AbsoluteUri;
-            if (!string.IsNullOrEmpty(lastVisitedPage))
+            try
             {
-                try
-                {
-                    File.WriteAllText(saveFilePath, lastVisitedPage);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при сохранении URL-адреса: {ex.Message}");
-                }
+                File.WriteAllLines(historyFilePath, history);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении истории: {ex.Message}");
             }
         }
+
         private void Nazad(object sender, RoutedEventArgs e)
         {
-            webView.GoBack();
+            if (historyIndex > 0)
+            {
+                isInHistoryMode = true; // Входим в режим просмотра истории
+                --historyIndex;
+                webView.Source = new Uri(history[historyIndex]);
+            }
+            else
+            {
+                MessageBox.Show("Назад перематывать некуда.");
+            }
         }
 
         private void Vpered(object sender, RoutedEventArgs e)
         {
-            webView.GoForward();
-        }
-        private void webView_NavigationStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
-        {
-            string targetUrl = e.Uri;
-            if (!targetUrl.StartsWith("https://www.google.com/"))
+            if (historyIndex < history.Count - 1)
             {
-                e.Cancel = true;
+                ++historyIndex;
+                webView.Source = new Uri(history[historyIndex]);
+                isInHistoryMode = historyIndex != history.Count - 1;
+            }
+            else if(historyIndex >= history.Count - 1)
+            {
+                isInHistoryMode = false;
+                MessageBox.Show("Вперед перематывать некуда.");
             }
         }
 
+        private void webView_NavigationStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
+        {
+            string targetUrl = e.Uri;
+            if (!targetUrl.StartsWith("https://kaspi.kz/"))
+            {
+                e.Cancel = true; // Отменяем навигацию, если URL не соответствует условиям
+            }
+            else
+            {
+                // Проверяем, является ли URL новым для истории
+                if (!history.Contains(targetUrl))
+                {
+                    // Добавляем новый URL в историю и обновляем индекс
+                    history.Add(targetUrl);
+                    historyIndex = history.Count - 1;
+
+                    // Удаляем все элементы после текущего индекса, если мы не в конце истории
+                    if (historyIndex < history.Count - 1)
+                    {
+                        history = history.Take(historyIndex + 1).ToList();
+                    }
+                }
+
+                // Обновляем флаг режима просмотра истории
+                isInHistoryMode = false;
+            }
+        }
     }
 }
