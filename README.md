@@ -8,10 +8,6 @@
 
 xaml
 ```html
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-```
-
-/'''xaml
 <Window x:Class="bower.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -26,7 +22,7 @@ xaml
         <Button Content="вперед" Click="Vpered" HorizontalAlignment="Left" Margin="106,12,0,0" VerticalAlignment="Top" Height="29" Width="60"/>
     </Grid>
 </Window>
-/'''
+```
 Этот код создает окно с веб-виджетом (WebView2) и двумя кнопками для навигации назад и вперед.
 
 Шаг 3: Обработка навигации
