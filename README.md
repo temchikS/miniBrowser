@@ -7,6 +7,9 @@
 Теперь давайте создадим интерфейс для вашего мини-браузера. Вам понадобится файл XAML (например, MainWindow.xaml), в котором вы определите интерфейс пользователя.
 
 xaml
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+```
 
 /'''xaml
 <Window x:Class="bower.MainWindow"
