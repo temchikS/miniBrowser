@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Linq;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
-namespace bower
+namespace WpfApp4
 {
     public partial class MainWindow : Window
     {
@@ -85,7 +88,7 @@ namespace bower
                 webView.Source = new Uri(history[historyIndex]);
                 isInHistoryMode = historyIndex != history.Count - 1;
             }
-            else if(historyIndex >= history.Count - 1)
+            else if (historyIndex >= history.Count - 1)
             {
                 isInHistoryMode = false;
                 MessageBox.Show("Вперед перематывать некуда.");
@@ -118,6 +121,14 @@ namespace bower
                 // Обновляем флаг режима просмотра истории
                 isInHistoryMode = false;
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+            // Создаем и отображаем окно сообщения с изображениями и текстом
+            Window1 window1 = new Window1();
+            window1.Show();
         }
     }
 }
